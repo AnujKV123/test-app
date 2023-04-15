@@ -1,0 +1,9 @@
+---
+all:
+  children:
+    web-servers:
+      hosts:
+        52.178.88.197
+      vars:
+        ansible_user: flanders
+        ansible_ssh_pass: '%TEST_SSH_PASSWORD%'
