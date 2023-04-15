@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout sources
-      uses: action/checkout@v2
+      uses: actions/checkout@v2
     - name: Linting
       uses: ansible/ansible-lint-action@076260884fa82c523db399fbb465174c498356d5
       with:
