@@ -12,7 +12,7 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v2
     - name: Linting
-      uses: ansible/ansible-lint-action@c37fb7b4bda2c8cb18f4942716bae9f11b0dc9bc
+      uses: ansible/ansible-lint-action@6.0.2
       with:
         targets: |
           ansible/playbook.yml
@@ -36,7 +36,7 @@ jobs:
         name: playbooks
         path: ansible
 
-    - uses: jacobtomlinson/gha-find-replace@master
+    - uses: jacobtomlinson/gha-find-replace@main
       name: Find and Replace  
       with:
         find: "%TEST_SSH_PASSWORD%"
