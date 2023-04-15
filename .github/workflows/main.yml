@@ -12,7 +12,8 @@ jobs:
     - name: Checkout sources
       uses: action/checkout@v2
     - name: Linting
-      uses: ansible/ansible-lint-action@82d11c945e8f70cee5b30101f9de8ab11d89286a
+      uses: ansible/ansible-lint-action@main
+      with:
         targets: |
           ansible/playbook.yml
           ansible/inventory.yml
