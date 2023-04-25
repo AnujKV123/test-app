@@ -1,50 +1,68 @@
-name: Deployment
-
+# This is a basic workflow to help you get started with Actions
+name: Ansible Check 
+# Controls when the workflow will run
 on:
-    workflow_dispatch:
-
+  # Triggers the workflow on push or pull request events but only for the main branch
+#  push:
+#    branches: [ main ]
+#  pull_request:
+#    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  linting:
-    name: Lint Ansible files
+  # This workflow contains a single job called "validate"
+  ansible_lint_validate:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: Checkout sources
-      uses: actions/checkout@v3
-    - name: Linting
-      uses: ansible/ansible-lint-action@v6.0.2
-      with:
-        targets: |
-          ansible/playbook.yml
-          ansible/inventory.yml
-        args: "-c ansible/.ansible-lint"
-    - name: Publish Playbook Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: playbooks
-        path: ansible
-
-  deploy_to_test:
-    name: Deploy to test
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      - name: Run ansible-lint
+        # replace `main` with any valid ref, or tags like `v6`
+        uses: ansible-community/ansible-lint-action@v6.0.2
+        with:
+          args: "ansible" # my ansible files in a folder
+  install_ansible:
+  # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    needs: linting
-    if: github.ref == 'refs/heads/main'
-    
+    # The anisble_lint_validate Job need to be sucessfull
+    needs: [ ansible_lint_validate ]
     steps:
-    - uses: actions/download-artifact@v2
-      with:
-        name: playbooks
-        path: ansible
-
-    - uses: jacobtomlinson/gha-find-replace@main
-      name: Find and Replace  
-      with:
-        find: "%TEST_SSH_PASSWORD%"
-        replace: "${{ secrets.TEST_SSH_PASSWORD }}"
-    
-    - uses: dawidd6/action-ansible-playbook@v2
-      with:
-        playbook: playbook.yml
-        directory: ansible
-        options: |
-          --inventory inventory-test.yml
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies Including Ansible
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f test-requirements.txt ]; then pip install -r test-requirements.txt; fi
+      - name: Ansible playbook Host:Localhost
+        run: |
+          ansible --version
+          #ansible all -i inventory.txt -m ping
+          ansible-playbook ansible/helloworld.yaml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+      - name: Ansible Playbook Host:EC2Instace
+        run: |
+          mkdir -p /home/runner/.ssh/
+          touch /home/runner/.ssh/id_rsa
+          echo -e "${{secrets.SSH_KEY}}" > /home/runner/.ssh/id_rsa.pem
+          chmod 600 /home/runner/.ssh/id_rsa.pem
+          echo "changed permission"
+          #ssh-keyscan -t rsa,dsa,ecdsa,ed25519 ${{secrets.SSH_HOST}} >> /home/runner/.ssh/known_hosts
+          
+      - name: Run ansible script
+        shell: bash 
+        run: |
+          service ssh status
+          #cd infrastructure/ansible
+          #cat setup-prod.yml
+          ansible-playbook -u ec2-user -vvv --private-key /home/runner/.ssh/id_rsa.pem -i ansible/inventory.txt ansible/playbook.yaml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
