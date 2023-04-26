@@ -48,7 +48,7 @@ jobs:
         run: |
           ansible --version
           #ansible all -i inventory.txt -m ping
-          ansible-playbook ansible/helloworld.yaml
+          ansible-playbook ansible/playbook.yaml
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
       - name: Ansible Playbook Host:EC2Instace
