@@ -66,6 +66,6 @@ jobs:
           service ssh status
           #cd infrastructure/ansible
           #cat setup-prod.yml
-          ansible-playbook -u ec2-user -vvv --private-key /home/runner/.ssh/id_rsa.pem -i ansible/inventory.txt ansible/playbook.yaml
+          ansible-playbook -u ubuntu -vvv --private-key /home/runner/.ssh/id_rsa.pem -i ansible/inventory.txt ansible/playbook.yaml
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
