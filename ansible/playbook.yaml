@@ -2,6 +2,11 @@
   hosts: all
   tasks:
   - name: Create a file called '/tmp/testfile.txt' with the content 'hello world'.
-    file:
-      path: /home/ubuntu/newfile.txt
-      state: touch
+    # file:
+    #   path: /home/ubuntu/newfile.txt
+    #   state: touch
+    copy:
+      dest: /home/ubuntu/newfile.txt
+      content: |
+        Hello welcome to ansible
+        "Hello from Anuj"
