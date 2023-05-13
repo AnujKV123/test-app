@@ -4,5 +4,4 @@
   - name: Create a file called '/tmp/testfile.txt' with the content 'hello world'.
     file:
       path: /home/ubuntu/newfile.txt
-      content: hello-world
       state: touch
